@@ -2,6 +2,11 @@
 
 A modern, full-stack library management system with OTP-based email authentication, built with React and Node.js.
 
+## Live Demo (UI)
+
+- GitHub Pages (client UI): `https://vaish400.github.io/LibrarySystem/`
+- Note: This is **frontend only**. For full functionality (OTP login, books, issues), the backend must be running/deployed and `VITE_API_URL` must point to it.
+
 ## Features
 
 ### 👩‍💼 Admin Features

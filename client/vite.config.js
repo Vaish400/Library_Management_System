@@ -1,14 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true
+export default defineConfig(({ command }) => {
+  const isBuild = command === 'build'
+
+  return {
+    // GitHub Pages deploys under /<repo>/
+    base: isBuild ? '/LibrarySystem/' : '/',
+    plugins: [react()],
+    server: {
+      port: 3000,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true
+        }
       }
     }
   }
