@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -74,8 +74,13 @@ function App() {
     );
   }
 
+  // GitHub Pages doesn’t support SPA refresh on BrowserRouter paths.
+  // Use HashRouter automatically on github.io so the deployed UI works.
+  const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+  const Router = isGitHubPages ? HashRouter : BrowserRouter;
+
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="App">
         {user && <Navbar user={user} onLogout={handleLogout} />}
         
@@ -128,7 +133,7 @@ function App() {
           />
         </Routes>
       </div>
-    </BrowserRouter>
+    </Router>
   );
 }
 
