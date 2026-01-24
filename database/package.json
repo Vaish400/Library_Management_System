@@ -1,0 +1,13 @@
+{
+  "name": "library-db-setup",
+  "version": "1.0.0",
+  "description": "Database setup script for Library Management System",
+  "main": "setup.js",
+  "scripts": {
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.5",
+    "dotenv": "^16.3.1"
+  }
+}
