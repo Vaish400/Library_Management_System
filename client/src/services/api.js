@@ -116,11 +116,10 @@ export const commentAPI = {
   deleteComment: (id) => api.delete(`/comments/${id}`)
 };
 
-// Request APIs (Book requests and general issues from students to admin)
+// Request APIs (Book requests from students to admin)
 export const requestAPI = {
   // Student endpoints
-  createRequest: (bookId, message, requestType = 'book', subject = null, category = null, urgency = 'normal') => 
-    api.post('/requests', { bookId, message, requestType, subject, category, urgency }),
+  createRequest: (bookId, message) => api.post('/requests', { bookId, message }),
   getMyRequests: () => api.get('/requests/my-requests'),
   
   // Admin endpoints
@@ -128,6 +127,21 @@ export const requestAPI = {
   getRequestStats: () => api.get('/requests/stats'),
   respondToRequest: (requestId, status, adminResponse) => 
     api.put(`/requests/${requestId}/respond`, { status, adminResponse })
+};
+
+// Issue Report APIs (General issues/support requests)
+export const issueReportAPI = {
+  // Student endpoints
+  createIssue: (subject, message, category, urgency) => 
+    api.post('/issues', { subject, message, category, urgency }),
+  getMyIssues: () => api.get('/issues/my-issues'),
+  
+  // Admin endpoints
+  getAllIssues: (status, category) => 
+    api.get('/issues/all', { params: { ...(status && { status }), ...(category && { category }) } }),
+  getIssueStats: () => api.get('/issues/stats'),
+  respondToIssue: (issueId, status, adminResponse) => 
+    api.put(`/issues/${issueId}/respond`, { status, adminResponse })
 };
 
 export default api;

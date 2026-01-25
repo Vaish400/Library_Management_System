@@ -8,6 +8,7 @@ const issueRoutes = require('./routes/issueRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const requestRoutes = require('./routes/requestRoutes');
+const issueReportRoutes = require('./routes/issueReportRoutes');
 const path = require('path');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/requests', requestRoutes);
+app.use('/api/issues', issueReportRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

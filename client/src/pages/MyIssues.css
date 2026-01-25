@@ -1,15 +1,15 @@
-.my-requests-page {
+.my-issues-page {
   min-height: calc(100vh - 80px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 2rem;
 }
 
-.my-requests-container {
+.my-issues-container {
   max-width: 900px;
   margin: 0 auto;
 }
 
-.my-requests-loading {
+.my-issues-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,7 +33,7 @@
 }
 
 /* Header */
-.my-requests-header {
+.my-issues-header {
   margin-bottom: 2rem;
 }
 
@@ -54,92 +54,63 @@
   margin: 0;
 }
 
-/* Requests List */
-.requests-list {
+/* Issues List */
+.issues-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.request-card {
+.issue-card {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1.5rem;
   border-left: 4px solid #e2e8f0;
   transition: all 0.3s;
 }
 
-.request-card:hover {
+.issue-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-.request-card.status-pending {
-  border-left-color: #f59e0b;
-}
-
-.request-card.status-approved {
-  border-left-color: #10b981;
-}
-
-.request-card.status-rejected {
+.issue-card.status-open {
   border-left-color: #ef4444;
 }
 
-.request-card.status-fulfilled {
-  border-left-color: #3b82f6;
+.issue-card.status-in_progress {
+  border-left-color: #f59e0b;
 }
 
-.request-book-info {
+.issue-card.status-resolved {
+  border-left-color: #10b981;
+}
+
+.issue-card.status-closed {
+  border-left-color: #6b7280;
+  opacity: 0.8;
+}
+
+.issue-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
   gap: 1rem;
-  align-items: center;
-  min-width: 120px;
 }
 
-.book-image {
-  width: 100px;
-  height: 130px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.book-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.book-image .no-image {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
-  font-size: 2.5rem;
-}
-
-.book-details {
-  text-align: center;
-}
-
-.book-details h3 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1rem;
+.issue-title-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
   color: #2d3748;
 }
 
-.book-author {
-  color: #718096;
-  margin: 0 0 0.5rem 0;
-  font-size: 0.85rem;
+.issue-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .status-badge {
@@ -150,27 +121,71 @@
   display: inline-block;
 }
 
-.badge-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-approved {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge-rejected {
+.badge-open {
   background: #fee2e2;
   color: #991b1b;
 }
 
-.badge-fulfilled {
-  background: #dbeafe;
-  color: #1e40af;
+.badge-progress {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.request-details {
+.badge-resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-closed {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.urgency-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.urgency-low {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.urgency-normal {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.urgency-high {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.urgency-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.issue-category {
+  padding: 0.25rem 0.5rem;
+  background: #e2e8f0;
+  color: #4a5568;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.issue-date {
+  color: #718096;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.issue-details {
   flex: 1;
 }
 
@@ -189,12 +204,7 @@
   background: #f7fafc;
   border-radius: 8px;
   border-left: 3px solid #667eea;
-}
-
-.request-date {
-  color: #718096;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+  white-space: pre-wrap;
 }
 
 .admin-response {
@@ -254,7 +264,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .my-requests-page {
+  .my-issues-page {
     padding: 1rem;
   }
 
@@ -262,21 +272,11 @@
     font-size: 2rem;
   }
 
-  .request-card {
-    grid-template-columns: 1fr;
+  .issue-header {
+    flex-direction: column;
   }
 
-  .request-book-info {
-    flex-direction: row;
-    justify-content: flex-start;
-  }
-
-  .book-details {
-    text-align: left;
-  }
-
-  .book-image {
-    width: 70px;
-    height: 90px;
+  .issue-date {
+    align-self: flex-start;
   }
 }

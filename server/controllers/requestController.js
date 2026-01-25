@@ -1,55 +1,42 @@
 const pool = require('../config/db');
 const { sendEmail } = require('../config/email');
 
-// Create a request (book request or general issue)
+// Create a book request (student)
 const createRequest = async (req, res) => {
   try {
-    const { bookId, message, requestType, subject, category, urgency } = req.body;
+    const { bookId, message } = req.body;
     const userId = req.user.id;
 
-    if (!message || message.trim().length < 10) {
-      return res.status(400).json({ message: 'Message is required and must be at least 10 characters' });
+    if (!bookId || !message) {
+      return res.status(400).json({ message: 'Book ID and message are required' });
     }
 
-    const reqType = requestType || 'book';
-    let book = null;
-    let finalBookId = null;
+    // Check if book exists
+    const [books] = await pool.execute(
+      'SELECT id, title, author FROM books WHERE id = ?',
+      [bookId]
+    );
 
-    // For book requests, validate book exists
-    if (reqType === 'book') {
-      if (!bookId) {
-        return res.status(400).json({ message: 'Book ID is required for book requests' });
-      }
+    if (books.length === 0) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
 
-      const [books] = await pool.execute(
-        'SELECT id, title, author FROM books WHERE id = ?',
-        [bookId]
-      );
+    const book = books[0];
 
-      if (books.length === 0) {
-        return res.status(404).json({ message: 'Book not found' });
-      }
+    // Check if user already has a pending request for this book
+    const [existingRequests] = await pool.execute(
+      'SELECT id FROM book_requests WHERE user_id = ? AND book_id = ? AND status = "pending"',
+      [userId, bookId]
+    );
 
-      book = books[0];
-      finalBookId = bookId;
-
-      // Check if user already has a pending request for this book
-      const [existingRequests] = await pool.execute(
-        'SELECT id FROM book_requests WHERE user_id = ? AND book_id = ? AND status = "pending" AND request_type = "book"',
-        [userId, bookId]
-      );
-
-      if (existingRequests.length > 0) {
-        return res.status(400).json({ message: 'You already have a pending request for this book' });
-      }
+    if (existingRequests.length > 0) {
+      return res.status(400).json({ message: 'You already have a pending request for this book' });
     }
 
     // Create the request
     const [result] = await pool.execute(
-      `INSERT INTO book_requests 
-       (user_id, book_id, message, request_type, subject, category, urgency) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [userId, finalBookId, message.trim(), reqType, subject || null, category || null, urgency || 'normal']
+      'INSERT INTO book_requests (user_id, book_id, message) VALUES (?, ?, ?)',
+      [userId, bookId, message]
     );
 
     // Get user info for email
@@ -64,51 +51,34 @@ const createRequest = async (req, res) => {
       'SELECT email, name FROM users WHERE role = "admin"'
     );
 
-    // Prepare email content based on request type
-    const emailTitle = reqType === 'book' 
-      ? `📚 New Book Request: ${book.title}`
-      : `⚠️ New Issue Reported: ${subject || 'General Issue'}`;
-    
-    const emailContent = reqType === 'book'
-      ? `
-        <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #667eea;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">${book.title}</h3>
-          <p style="margin: 0; color: #666;">by ${book.author}</p>
-        </div>
-        <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
-          <p style="margin: 0 0 5px 0;"><strong>Requested by:</strong> ${user.name} (${user.email})</p>
-          <p style="margin: 0 0 5px 0;"><strong>Message:</strong></p>
-          <p style="margin: 0; color: #555; font-style: italic;">"${message.trim()}"</p>
-        </div>
-      `
-      : `
-        <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #e74c3c;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">${subject || 'General Issue'}</h3>
-          <p style="margin: 0; color: #666;">Category: ${category || 'General'} | Urgency: ${urgency || 'Normal'}</p>
-        </div>
-        <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
-          <p style="margin: 0 0 5px 0;"><strong>Reported by:</strong> ${user.name} (${user.email})</p>
-          <p style="margin: 0 0 5px 0;"><strong>Description:</strong></p>
-          <p style="margin: 0; color: #555; font-style: italic;">"${message.trim()}"</p>
-        </div>
-      `;
-
     // Send email notification to all admins
     for (const admin of admins) {
       try {
         await sendEmail(
           admin.email,
-          emailTitle,
+          `📚 New Book Request: ${book.title}`,
           `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, ${reqType === 'book' ? '#667eea 0%, #764ba2 100%' : '#e74c3c 0%, #c0392b 100%'}); padding: 20px; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0;">${reqType === 'book' ? '📚 New Book Request' : '⚠️ New Issue Reported'}</h1>
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0;">📚 New Book Request</h1>
               </div>
               <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px;">
                 <p>Hello ${admin.name},</p>
-                <p>A ${reqType === 'book' ? 'student has requested a book' : 'student has reported an issue'} from the library:</p>
-                ${emailContent}
-                <p>Please log in to the Library Management System to review and respond to this ${reqType === 'book' ? 'request' : 'issue'}.</p>
+                <p>A student has requested a book from the library:</p>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #667eea;">
+                  <h3 style="margin: 0 0 10px 0; color: #333;">${book.title}</h3>
+                  <p style="margin: 0; color: #666;">by ${book.author}</p>
+                </div>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                  <p style="margin: 0 0 5px 0;"><strong>Requested by:</strong> ${user.name} (${user.email})</p>
+                  <p style="margin: 0 0 5px 0;"><strong>Message:</strong></p>
+                  <p style="margin: 0; color: #555; font-style: italic;">"${message}"</p>
+                </div>
+                
+                <p>Please log in to the Library Management System to review and respond to this request.</p>
+                
                 <p style="color: #888; font-size: 12px; margin-top: 20px;">
                   This is an automated notification from the Library Management System.
                 </p>
@@ -154,7 +124,7 @@ const getAllRequests = async (req, res) => {
              u.name as user_name, u.email as user_email,
              a.name as admin_name
       FROM book_requests br
-      LEFT JOIN books b ON br.book_id = b.id
+      JOIN books b ON br.book_id = b.id
       JOIN users u ON br.user_id = u.id
       LEFT JOIN users a ON br.responded_by = a.id
     `;
@@ -207,7 +177,7 @@ const getMyRequests = async (req, res) => {
                 b.title as book_title, b.author as book_author, ${imageUrlSelect},
                 a.name as admin_name
          FROM book_requests br
-         LEFT JOIN books b ON br.book_id = b.id
+         JOIN books b ON br.book_id = b.id
          LEFT JOIN users a ON br.responded_by = a.id
          WHERE br.user_id = ?
          ORDER BY br.created_at DESC`,

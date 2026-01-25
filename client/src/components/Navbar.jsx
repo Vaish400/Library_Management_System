@@ -42,12 +42,20 @@ const Navbar = ({ user, onLogout }) => {
             {user?.role === 'admin' ? 'Manage Issues' : 'Issue Book'}
           </Link>
           {user?.role === 'admin' ? (
-            <Link 
-              to="/requests" 
-              className={`navbar-link ${isActive('/requests') ? 'active' : ''}`}
-            >
-              📬 Requests
-            </Link>
+            <>
+              <Link 
+                to="/requests" 
+                className={`navbar-link ${isActive('/requests') ? 'active' : ''}`}
+              >
+                📬 Book Requests
+              </Link>
+              <Link 
+                to="/admin-issues" 
+                className={`navbar-link ${isActive('/admin-issues') ? 'active' : ''}`}
+              >
+                ⚠️ Issues
+              </Link>
+            </>
           ) : (
             <>
               <Link 
@@ -61,6 +69,12 @@ const Navbar = ({ user, onLogout }) => {
                 className={`navbar-link ${isActive('/my-requests') ? 'active' : ''}`}
               >
                 📋 My Requests
+              </Link>
+              <Link 
+                to="/my-issues" 
+                className={`navbar-link ${isActive('/my-issues') ? 'active' : ''}`}
+              >
+                ⚠️ My Issues
               </Link>
             </>
           )}

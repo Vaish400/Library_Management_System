@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { requestAPI, bookAPI } from '../services/api';
+import { requestAPI, bookAPI, issueReportAPI } from '../services/api';
 import './StudentRequest.css';
 
 const StudentRequest = ({ user }) => {
@@ -65,16 +65,14 @@ const StudentRequest = ({ user }) => {
     setSubmitting(true);
     try {
       if (requestType === 'book') {
-        await requestAPI.createRequest(selectedBook.id, formData.message, 'book');
+        await requestAPI.createRequest(selectedBook.id, formData.message);
         alert('✅ Book request submitted successfully! Admin will be notified via email.');
       } else {
-        // Create general issue request
-        await requestAPI.createRequest(
-          null, 
-          formData.message, 
-          'issue', 
-          formData.subject, 
-          formData.category, 
+        // Submit general issue
+        await issueReportAPI.createIssue(
+          formData.subject,
+          formData.message,
+          formData.category,
           formData.urgency
         );
         alert('✅ Issue reported successfully! Admin will be notified via email.');
@@ -90,7 +88,9 @@ const StudentRequest = ({ user }) => {
       setSelectedBook(null);
       setSearchQuery('');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to submit request. Please try again.');
+      const errorMsg = error.response?.data?.message || 'Failed to submit request. Please try again.';
+      alert(errorMsg);
+      console.error('Submit error:', error);
     } finally {
       setSubmitting(false);
     }

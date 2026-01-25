@@ -12,6 +12,8 @@ import BookDetails from './pages/BookDetails';
 import BookRequests from './pages/BookRequests';
 import MyRequests from './pages/MyRequests';
 import StudentRequest from './pages/StudentRequest';
+import AdminIssues from './pages/AdminIssues';
+import MyIssues from './pages/MyIssues';
 import { authAPI } from './services/api';
 import './App.css';
 
@@ -147,6 +149,18 @@ function App() {
             path="/request" 
             element={
               user?.role === 'student' ? <StudentRequest user={user} /> : <Navigate to="/dashboard" replace />
+            } 
+          />
+          <Route 
+            path="/admin-issues" 
+            element={
+              user?.role === 'admin' ? <AdminIssues user={user} /> : <Navigate to="/dashboard" replace />
+            } 
+          />
+          <Route 
+            path="/my-issues" 
+            element={
+              user ? <MyIssues user={user} /> : <Navigate to="/login" replace />
             } 
           />
           <Route 

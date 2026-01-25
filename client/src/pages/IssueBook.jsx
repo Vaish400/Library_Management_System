@@ -18,28 +18,37 @@ const IssueBook = ({ user }) => {
   const fetchData = async () => {
     try {
       setError('');
-      const [booksRes, issuesRes] = await Promise.all([
-        bookAPI.getAllBooks(),
-        user.role === 'admin' 
-          ? issueAPI.getAllIssuedBooks() 
-          : issueAPI.getMyIssuedBooks()
-      ]);
+      setMessage('');
+      
+      const booksPromise = bookAPI.getAllBooks().catch((err) => {
+        console.error('Books fetch error:', err);
+        return { data: { books: [] } };
+      });
+      
+      const issuesPromise = (user.role === 'admin' 
+        ? issueAPI.getAllIssuedBooks() 
+        : issueAPI.getMyIssuedBooks()
+      ).catch((err) => {
+        console.error('Issues fetch error:', err);
+        return { data: { issuedBooks: [] } };
+      });
+
+      const [booksRes, issuesRes] = await Promise.all([booksPromise, issuesPromise]);
 
       setBooks(booksRes.data?.books || []);
-      setIssuedBooks(issuesRes.data?.issuedBooks || []);
+      const fetchedIssues = issuesRes.data?.issuedBooks || [];
+      console.log('Fetched issued books:', fetchedIssues); // Debug log
+      setIssuedBooks(fetchedIssues);
     } catch (error) {
-      // Silently handle errors - don't show error messages for missing tables
-      // Just set empty arrays to prevent crashes
+      console.error('Fetch data error:', error);
+      // Set empty arrays on any error to prevent crashes
       setBooks([]);
       setIssuedBooks([]);
-      // Only show error if it's not a database/table issue (500 error)
-      // 500 errors are likely due to missing tables - handle gracefully
-      if (error.response?.status !== 500) {
-        const errorMsg = error.response?.data?.message || error.message || 'Failed to load data';
+      // Only show error for non-500 errors
+      if (error.response?.status && error.response.status !== 500) {
+        const errorMsg = error.response?.data?.message || 'Failed to load data';
         setError(errorMsg);
       }
-      // For 500 errors, silently handle - table might not exist yet
-      // Don't show error to user, just log for debugging
     } finally {
       setLoading(false);
     }
