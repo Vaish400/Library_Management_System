@@ -4,16 +4,26 @@ const pool = require('../config/db');
 const issueBook = async (req, res) => {
   try {
     const { bookId } = req.body;
-    const userId = req.user.id;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
 
     if (!bookId) {
       return res.status(400).json({ message: 'Book ID is required' });
     }
 
+    // Convert bookId to integer if it's a string
+    const bookIdInt = parseInt(bookId);
+    if (isNaN(bookIdInt)) {
+      return res.status(400).json({ message: 'Invalid book ID format' });
+    }
+
     // Check if book exists and is available
     const [books] = await pool.execute(
       'SELECT id, title, quantity FROM books WHERE id = ?',
-      [bookId]
+      [bookIdInt]
     );
 
     if (books.length === 0) {
@@ -29,7 +39,7 @@ const issueBook = async (req, res) => {
     // Check if user already has this book issued
     const [existingIssues] = await pool.execute(
       'SELECT id FROM issued_books WHERE user_id = ? AND book_id = ? AND return_date IS NULL',
-      [userId, bookId]
+      [userId, bookIdInt]
     );
 
     if (existingIssues.length > 0) {
@@ -40,13 +50,13 @@ const issueBook = async (req, res) => {
     const issueDate = new Date().toISOString().split('T')[0];
     await pool.execute(
       'INSERT INTO issued_books (user_id, book_id, issue_date) VALUES (?, ?, ?)',
-      [userId, bookId, issueDate]
+      [userId, bookIdInt, issueDate]
     );
 
     // Decrease book quantity
     await pool.execute(
       'UPDATE books SET quantity = quantity - 1 WHERE id = ?',
-      [bookId]
+      [bookIdInt]
     );
 
     res.json({
@@ -54,7 +64,12 @@ const issueBook = async (req, res) => {
       issueDate
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error issuing book:', error);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
@@ -109,20 +124,39 @@ const returnBook = async (req, res) => {
 // Get my issued books
 const getMyIssuedBooks = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
 
-    const [issuedBooks] = await pool.execute(
-      `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, b.image_url
-       FROM issued_books ib
-       JOIN books b ON ib.book_id = b.id
-       WHERE ib.user_id = ?
-       ORDER BY ib.issue_date DESC`,
-      [userId]
-    );
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
 
-    res.json({ issuedBooks });
+    // Check if table exists, if not return empty array
+    try {
+      const [issuedBooks] = await pool.execute(
+        `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, b.image_url
+         FROM issued_books ib
+         JOIN books b ON ib.book_id = b.id
+         WHERE ib.user_id = ?
+         ORDER BY ib.issue_date DESC`,
+        [userId]
+      );
+
+      res.json({ issuedBooks: issuedBooks || [] });
+    } catch (dbError) {
+      // If table doesn't exist, return empty array
+      if (dbError.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('issued_books table does not exist. Please run create_database.sql');
+        return res.json({ issuedBooks: [] });
+      }
+      throw dbError;
+    }
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error fetching issued books:', error);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

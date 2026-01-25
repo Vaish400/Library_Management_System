@@ -17,6 +17,7 @@ const IssueBook = ({ user }) => {
 
   const fetchData = async () => {
     try {
+      setError('');
       const [booksRes, issuesRes] = await Promise.all([
         bookAPI.getAllBooks(),
         user.role === 'admin' 
@@ -24,10 +25,15 @@ const IssueBook = ({ user }) => {
           : issueAPI.getMyIssuedBooks()
       ]);
 
-      setBooks(booksRes.data.books || []);
-      setIssuedBooks(issuesRes.data.issuedBooks || []);
+      setBooks(booksRes.data?.books || []);
+      setIssuedBooks(issuesRes.data?.issuedBooks || []);
     } catch (error) {
-      setError('Failed to load data');
+      console.error('Error fetching data:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to load data';
+      setError(errorMsg);
+      // Set empty arrays on error to prevent crashes
+      setBooks([]);
+      setIssuedBooks([]);
     } finally {
       setLoading(false);
     }
@@ -44,7 +50,13 @@ const IssueBook = ({ user }) => {
     setActionLoading(true);
 
     try {
-      await issueAPI.issueBook(selectedBookId);
+      const bookIdNum = typeof selectedBookId === 'string' ? parseInt(selectedBookId) : selectedBookId;
+      if (isNaN(bookIdNum)) {
+        setError('Invalid book ID');
+        setActionLoading(false);
+        return;
+      }
+      await issueAPI.issueBook(bookIdNum);
       setMessage('Book issued successfully!');
       setSelectedBookId('');
       fetchData();

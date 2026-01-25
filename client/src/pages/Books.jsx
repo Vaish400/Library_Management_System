@@ -51,11 +51,19 @@ const Books = ({ user }) => {
 
   const handleIssue = async (bookId) => {
     try {
-      await issueAPI.issueBook(bookId);
+      // Ensure bookId is a number
+      const bookIdNum = typeof bookId === 'string' ? parseInt(bookId) : bookId;
+      if (isNaN(bookIdNum)) {
+        alert('Invalid book ID');
+        return;
+      }
+      await issueAPI.issueBook(bookIdNum);
       alert('Book issued successfully!');
       fetchBooks();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to issue book');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to issue book';
+      alert(errorMessage);
+      console.error('Issue book error:', error);
     }
   };
 

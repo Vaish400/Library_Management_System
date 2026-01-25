@@ -137,24 +137,41 @@ const getAllRequests = async (req, res) => {
 // Get my requests (student)
 const getMyRequests = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
     
-    const [requests] = await pool.execute(
-      `SELECT br.*, 
-              b.title as book_title, b.author as book_author, b.image_url as book_image,
-              a.name as admin_name
-       FROM book_requests br
-       JOIN books b ON br.book_id = b.id
-       LEFT JOIN users a ON br.responded_by = a.id
-       WHERE br.user_id = ?
-       ORDER BY br.created_at DESC`,
-      [userId]
-    );
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
     
-    res.json({ requests });
+    try {
+      const [requests] = await pool.execute(
+        `SELECT br.*, 
+                b.title as book_title, b.author as book_author, b.image_url as book_image,
+                a.name as admin_name
+         FROM book_requests br
+         JOIN books b ON br.book_id = b.id
+         LEFT JOIN users a ON br.responded_by = a.id
+         WHERE br.user_id = ?
+         ORDER BY br.created_at DESC`,
+        [userId]
+      );
+      
+      res.json({ requests: requests || [] });
+    } catch (dbError) {
+      // If table doesn't exist, return empty array
+      if (dbError.code === 'ER_NO_SUCH_TABLE') {
+        console.warn('book_requests table does not exist. Please run create_database.sql');
+        return res.json({ requests: [] });
+      }
+      throw dbError;
+    }
   } catch (error) {
     console.error('Get my requests error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

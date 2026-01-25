@@ -95,8 +95,8 @@ export const bookAPI = {
 
 // Issue APIs
 export const issueAPI = {
-  issueBook: (bookId) => api.post('/issues/issue', { bookId }),
-  returnBook: (issueId) => api.post('/issues/return', { issueId }),
+  issueBook: (bookId) => api.post('/issues/issue', { bookId: Number(bookId) }),
+  returnBook: (issueId) => api.post('/issues/return', { issueId: Number(issueId) }),
   getMyIssuedBooks: () => api.get('/issues/my-books'),
   getAllIssuedBooks: () => api.get('/issues/all')
 };
