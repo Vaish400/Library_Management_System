@@ -2,11 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ command }) => {
-  const isBuild = command === 'build'
-
   return {
-    // GitHub Pages deploys under /<repo>/
-    base: isBuild ? '/LibrarySystem/' : '/',
+    // Use root path for Vercel deployment
+    base: '/',
     plugins: [react()],
     server: {
       port: 3000,
