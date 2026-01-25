@@ -145,8 +145,20 @@ const getMyIssuedBooks = async (req, res) => {
         return res.json({ issuedBooks: [] });
       }
 
+      // Check if image_url column exists in books table
+      const [columns] = await pool.execute(
+        `SELECT COLUMN_NAME 
+         FROM information_schema.COLUMNS 
+         WHERE TABLE_SCHEMA = DATABASE() 
+         AND TABLE_NAME = 'books' 
+         AND COLUMN_NAME = 'image_url'`
+      );
+      
+      const hasImageUrl = columns.length > 0;
+      const imageUrlSelect = hasImageUrl ? 'b.image_url,' : 'NULL as image_url,';
+      
       const [issuedBooks] = await pool.execute(
-        `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, b.image_url
+        `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, ${imageUrlSelect}
          FROM issued_books ib
          JOIN books b ON ib.book_id = b.id
          WHERE ib.user_id = ?

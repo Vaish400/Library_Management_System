@@ -106,9 +106,21 @@ const getAllRequests = async (req, res) => {
   try {
     const { status } = req.query;
     
+    // Check if image_url column exists in books table
+    const [columns] = await pool.execute(
+      `SELECT COLUMN_NAME 
+       FROM information_schema.COLUMNS 
+       WHERE TABLE_SCHEMA = DATABASE() 
+       AND TABLE_NAME = 'books' 
+       AND COLUMN_NAME = 'image_url'`
+    );
+    
+    const hasImageUrl = columns.length > 0;
+    const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image,' : 'NULL as book_image,';
+    
     let query = `
       SELECT br.*, 
-             b.title as book_title, b.author as book_author, b.image_url as book_image,
+             b.title as book_title, b.author as book_author, ${imageUrlSelect}
              u.name as user_name, u.email as user_email,
              a.name as admin_name
       FROM book_requests br
@@ -127,9 +139,13 @@ const getAllRequests = async (req, res) => {
     
     const [requests] = await pool.execute(query, params);
     
-    res.json({ requests });
+    res.json({ requests: requests || [] });
   } catch (error) {
     console.error('Get all requests error:', error);
+    // Return empty array on any error
+    if (error.code === 'ER_NO_SUCH_TABLE' || error.code === 'ER_BAD_FIELD_ERROR') {
+      return res.json({ requests: [] });
+    }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -144,9 +160,21 @@ const getMyRequests = async (req, res) => {
     }
     
     try {
+      // Check if image_url column exists in books table
+      const [columns] = await pool.execute(
+        `SELECT COLUMN_NAME 
+         FROM information_schema.COLUMNS 
+         WHERE TABLE_SCHEMA = DATABASE() 
+         AND TABLE_NAME = 'books' 
+         AND COLUMN_NAME = 'image_url'`
+      );
+      
+      const hasImageUrl = columns.length > 0;
+      const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image,' : 'NULL as book_image,';
+      
       const [requests] = await pool.execute(
         `SELECT br.*, 
-                b.title as book_title, b.author as book_author, b.image_url as book_image,
+                b.title as book_title, b.author as book_author, ${imageUrlSelect}
                 a.name as admin_name
          FROM book_requests br
          JOIN books b ON br.book_id = b.id
@@ -158,9 +186,9 @@ const getMyRequests = async (req, res) => {
       
       res.json({ requests: requests || [] });
     } catch (dbError) {
-      // If table doesn't exist, return empty array
-      if (dbError.code === 'ER_NO_SUCH_TABLE') {
-        console.warn('book_requests table does not exist. Please run create_database.sql');
+      // If table doesn't exist or column error, return empty array
+      if (dbError.code === 'ER_NO_SUCH_TABLE' || dbError.code === 'ER_BAD_FIELD_ERROR') {
+        console.warn('Database table/column issue. Please run create_database.sql');
         return res.json({ requests: [] });
       }
       throw dbError;

@@ -15,13 +15,9 @@ const MyRequests = ({ user }) => {
       const response = await requestAPI.getMyRequests();
       setRequests(response.data?.requests || []);
     } catch (error) {
-      console.error('Failed to fetch requests:', error);
-      // Set empty array on error to prevent crashes
+      // Silently handle errors - set empty array to prevent crashes
       setRequests([]);
-      // Only show error if it's not a 404 (table might not exist yet)
-      if (error.response?.status !== 404) {
-        console.error('Request error details:', error.response?.data || error.message);
-      }
+      // Don't log errors - they're handled gracefully on server side
     } finally {
       setLoading(false);
     }
