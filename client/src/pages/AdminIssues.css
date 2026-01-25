@@ -98,6 +98,14 @@
   font-size: 0.9rem;
 }
 
+.urgent-badge {
+  display: block;
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
 .stat-open { border-left: 4px solid #ef4444; }
 .stat-progress { border-left: 4px solid #f59e0b; }
 .stat-resolved { border-left: 4px solid #10b981; }
@@ -203,6 +211,17 @@
 .issue-card.status-closed {
   border-left-color: #6b7280;
   opacity: 0.8;
+}
+
+.issue-card.urgent-issue {
+  border-left-width: 6px;
+  border-left-color: #ef4444;
+  background: linear-gradient(to right, #fee2e2 0%, white 5%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.issue-card.urgent-issue:hover {
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
 }
 
 .issue-header {

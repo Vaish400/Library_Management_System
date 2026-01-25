@@ -178,6 +178,9 @@ const AdminIssues = ({ user }) => {
               <div className="stat-info">
                 <span className="stat-number">{stats.open || 0}</span>
                 <span className="stat-label">Open</span>
+                {stats.urgent_pending > 0 && (
+                  <span className="urgent-badge">⚠️ {stats.urgent_pending} urgent</span>
+                )}
               </div>
             </div>
             <div className="stat-card stat-progress">
@@ -248,7 +251,10 @@ const AdminIssues = ({ user }) => {
         ) : (
           <div className="issues-list">
             {issues.map((issue) => (
-              <div key={issue.id} className={`issue-card status-${issue.status}`}>
+              <div 
+                key={issue.id} 
+                className={`issue-card status-${issue.status} ${issue.urgency === 'urgent' && issue.status !== 'closed' ? 'urgent-issue' : ''}`}
+              >
                 <div className="issue-header">
                   <div className="issue-title-section">
                     <h3>{issue.subject}</h3>

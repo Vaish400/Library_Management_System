@@ -133,15 +133,15 @@ export const requestAPI = {
 export const issueReportAPI = {
   // Student endpoints
   createIssue: (subject, message, category, urgency) => 
-    api.post('/issues', { subject, message, category, urgency }),
-  getMyIssues: () => api.get('/issues/my-issues'),
+    api.post('/issue-reports', { subject, message, category, urgency }),
+  getMyIssues: () => api.get('/issue-reports/my-issues'),
   
   // Admin endpoints
   getAllIssues: (status, category) => 
-    api.get('/issues/all', { params: { ...(status && { status }), ...(category && { category }) } }),
-  getIssueStats: () => api.get('/issues/stats'),
+    api.get('/issue-reports/all', { params: { ...(status && { status }), ...(category && { category }) } }),
+  getIssueStats: () => api.get('/issue-reports/stats'),
   respondToIssue: (issueId, status, adminResponse) => 
-    api.put(`/issues/${issueId}/respond`, { status, adminResponse })
+    api.put(`/issue-reports/${issueId}/respond`, { status, adminResponse })
 };
 
 export default api;

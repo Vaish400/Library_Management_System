@@ -39,7 +39,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/requests', requestRoutes);
-app.use('/api/issues', issueReportRoutes);
+app.use('/api/issue-reports', issueReportRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

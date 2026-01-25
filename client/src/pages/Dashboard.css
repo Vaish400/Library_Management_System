@@ -365,6 +365,224 @@
   transform: translateX(5px);
 }
 
+/* Admin Sections */
+.admin-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.admin-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.view-all-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.view-all-link:hover {
+  color: #764ba2;
+  transform: translateX(3px);
+}
+
+.mini-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  min-width: 80px;
+}
+
+.mini-stat.urgent {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+}
+
+.mini-stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.mini-stat.urgent .mini-stat-number {
+  color: #ef4444;
+}
+
+.mini-stat-label {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  border-left: 4px solid #e2e8f0;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.dashboard-item:hover {
+  background: #edf2f7;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.dashboard-item.urgent-item {
+  border-left-color: #ef4444;
+  border-left-width: 6px;
+  background: linear-gradient(to right, #fee2e2 0%, #f7fafc 8%);
+}
+
+.dashboard-item.urgent-item:hover {
+  background: linear-gradient(to right, #fecaca 0%, #edf2f7 8%);
+}
+
+.item-content {
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.item-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+}
+
+.item-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.item-reporter {
+  font-weight: 500;
+}
+
+.item-date {
+  color: #a0aec0;
+}
+
+.item-preview {
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.item-arrow {
+  font-size: 1.5rem;
+  color: #cbd5e0;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.dashboard-item:hover .item-arrow {
+  color: #667eea;
+  transform: translateX(5px);
+}
+
+.urgency-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.urgency-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.urgency-high {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.urgency-normal {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.urgency-low {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.empty-section {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  font-style: italic;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .dashboard-stats {
@@ -373,6 +591,10 @@
   
   .dashboard-actions {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .admin-sections {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -415,6 +637,22 @@
   .stat-number {
     font-size: 2rem;
   }
+
+  .admin-section {
+    padding: 1.5rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -440,5 +678,19 @@
 
   .action-arrow {
     display: none;
+  }
+
+  .admin-sections {
+    gap: 1.5rem;
+  }
+
+  .dashboard-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .item-arrow {
+    align-self: flex-end;
   }
 }
