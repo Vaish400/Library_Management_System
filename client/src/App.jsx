@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -129,7 +130,7 @@ function App() {
           />
           <Route 
             path="/" 
-            element={<Navigate to={user ? "/dashboard" : "/login"} replace />} 
+            element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} 
           />
         </Routes>
       </div>
