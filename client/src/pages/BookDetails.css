@@ -132,6 +132,28 @@
   display: block;
 }
 
+.no-image-placeholder-large {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  color: #718096;
+  border-radius: 12px;
+}
+
+.no-image-placeholder-large .placeholder-icon {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+}
+
+.no-image-placeholder-large .placeholder-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
 .file-actions {
   display: flex;
   flex-direction: column;

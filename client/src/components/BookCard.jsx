@@ -5,13 +5,20 @@ const BookCard = ({ book, onIssue, onReturn, onDelete, onEdit, onRequest, user, 
   const isAvailable = book.quantity > 0;
   const imageUrl = book.image_url 
     ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${book.image_url}`
-    : 'https://via.placeholder.com/200x300?text=No+Image';
+    : null;
 
   return (
     <div className="book-card">
       <Link to={`/books/${book.id}`} className="book-card-link">
         <div className="book-card-image">
-          <img src={imageUrl} alt={book.title} />
+          {imageUrl ? (
+            <img src={imageUrl} alt={book.title} />
+          ) : (
+            <div className="no-image-placeholder">
+              <span className="placeholder-icon">📚</span>
+              <span className="placeholder-text">No Image</span>
+            </div>
+          )}
           {book.average_rating > 0 && (
             <div className="book-rating-badge">
               ⭐ {parseFloat(book.average_rating).toFixed(1)}

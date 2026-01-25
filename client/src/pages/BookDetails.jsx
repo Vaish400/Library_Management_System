@@ -183,7 +183,7 @@ const BookDetails = ({ user }) => {
 
   const imageUrl = book.image_url 
     ? `${serverBaseUrl}${book.image_url}`
-    : 'https://via.placeholder.com/400x600?text=No+Image';
+    : null;
 
   return (
     <div className="book-details-page">
@@ -202,7 +202,14 @@ const BookDetails = ({ user }) => {
         <div className="book-details-main">
           <div className="book-image-card">
             <div className="image-wrapper">
-              <img src={imageUrl} alt={book.title} className="book-image" />
+              {imageUrl ? (
+                <img src={imageUrl} alt={book.title} className="book-image" />
+              ) : (
+                <div className="no-image-placeholder-large">
+                  <span className="placeholder-icon">📚</span>
+                  <span className="placeholder-text">No Image Available</span>
+                </div>
+              )}
             </div>
             {book.file_url && (
               <div className="file-actions">
