@@ -19,14 +19,25 @@ const AdminIssues = ({ user }) => {
 
   const fetchIssues = async () => {
     try {
+      setLoading(true);
       const response = await issueReportAPI.getAllIssues(
         filter === 'all' ? null : filter,
         categoryFilter === 'all' ? null : categoryFilter
       );
-      setIssues(response.data?.issues || []);
+      
+      if (response.data?.success !== false) {
+        setIssues(response.data?.issues || []);
+      } else {
+        setIssues([]);
+        console.error('Failed to fetch issues:', response.data?.message);
+      }
     } catch (error) {
       console.error('Failed to fetch issues:', error);
       setIssues([]);
+      // Show user-friendly error message
+      if (error.response?.status !== 500) {
+        alert(error.response?.data?.message || 'Failed to load issues. Please refresh the page.');
+      }
     } finally {
       setLoading(false);
     }
@@ -35,9 +46,12 @@ const AdminIssues = ({ user }) => {
   const fetchStats = async () => {
     try {
       const response = await issueReportAPI.getIssueStats();
-      setStats(response.data?.stats);
+      if (response.data?.success !== false) {
+        setStats(response.data?.stats);
+      }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+      // Don't show error for stats - it's not critical
     }
   };
 
@@ -47,19 +61,49 @@ const AdminIssues = ({ user }) => {
   };
 
   const submitResponse = async () => {
+    // Validate response message length
+    if (responseData.message && responseData.message.trim().length > 1000) {
+      alert('Response message must be less than 1000 characters');
+      return;
+    }
+
+    // Confirm action for status changes
+    const statusLabels = {
+      open: 'Open',
+      in_progress: 'In Progress',
+      resolved: 'Resolved',
+      closed: 'Closed'
+    };
+
+    if (responseData.status === 'closed' && respondModal.issue.status !== 'closed') {
+      if (!window.confirm(`Are you sure you want to close this issue? This action cannot be undone.`)) {
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
-      await issueReportAPI.respondToIssue(
+      const response = await issueReportAPI.respondToIssue(
         respondModal.issue.id,
         responseData.status,
-        responseData.message
+        responseData.message.trim() || null
       );
-      alert(`Issue ${responseData.status} successfully! Student has been notified.`);
-      setRespondModal({ open: false, issue: null });
-      fetchIssues();
-      fetchStats();
+      
+      if (response.data?.success !== false) {
+        alert(`✅ Issue updated to ${statusLabels[responseData.status]} successfully! Student has been notified via email.`);
+        setRespondModal({ open: false, issue: null });
+        setResponseData({ status: 'resolved', message: '' });
+        fetchIssues();
+        fetchStats();
+      } else {
+        alert(response.data?.message || 'Failed to update issue');
+      }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to respond to issue');
+      const errorMsg = error.response?.data?.message || 
+                       error.message || 
+                       'Failed to update issue. Please try again.';
+      alert(errorMsg);
+      console.error('Update issue error:', error);
     } finally {
       setSubmitting(false);
     }
@@ -314,15 +358,28 @@ const AdminIssues = ({ user }) => {
                 </div>
                 
                 <div className="form-group">
-                  <label htmlFor="responseMessage">Your Response to Student (Optional)</label>
+                  <label htmlFor="responseMessage">
+                    Your Response to Student (Optional)
+                    {responseData.message.length > 0 && (
+                      <span className="char-counter-small">
+                        {' '}({responseData.message.length}/1000)
+                      </span>
+                    )}
+                  </label>
                   <textarea
                     id="responseMessage"
                     placeholder="Add a response for the student..."
                     value={responseData.message}
                     onChange={(e) => setResponseData({ ...responseData, message: e.target.value })}
-                    rows={3}
+                    rows={4}
                     className="response-textarea"
+                    maxLength={1000}
                   />
+                  {responseData.message.length > 1000 && (
+                    <span className="char-error" style={{ fontSize: '0.85rem', marginTop: '0.25rem', display: 'block' }}>
+                      Response must be less than 1000 characters
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="modal-footer">

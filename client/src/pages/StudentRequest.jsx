@@ -47,49 +47,107 @@ const StudentRequest = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (requestType === 'book' && !selectedBook) {
-      alert('Please select a book to request');
-      return;
+    // Validation for book requests
+    if (requestType === 'book') {
+      if (!selectedBook) {
+        alert('⚠️ Please select a book to request');
+        return;
+      }
+      if (!formData.message.trim()) {
+        alert('⚠️ Please enter a message explaining why you need this book');
+        return;
+      }
+      if (formData.message.trim().length < 10) {
+        alert('⚠️ Please provide more details (at least 10 characters)');
+        return;
+      }
+      if (formData.message.trim().length > 500) {
+        alert('⚠️ Message is too long. Please keep it under 500 characters.');
+        return;
+      }
     }
 
-    if (!formData.message.trim()) {
-      alert('Please enter a message');
-      return;
-    }
-
-    if (formData.message.trim().length < 10) {
-      alert('Please provide more details (at least 10 characters)');
-      return;
+    // Validation for issue reports
+    if (requestType === 'issue') {
+      if (!formData.subject || !formData.subject.trim()) {
+        alert('⚠️ Please enter a subject for your issue');
+        return;
+      }
+      if (formData.subject.trim().length > 200) {
+        alert('⚠️ Subject is too long. Please keep it under 200 characters.');
+        return;
+      }
+      if (!formData.message.trim()) {
+        alert('⚠️ Please provide a detailed description of the issue');
+        return;
+      }
+      if (formData.message.trim().length < 10) {
+        alert('⚠️ Please provide more details (at least 10 characters)');
+        return;
+      }
+      if (formData.message.trim().length > 1000) {
+        alert('⚠️ Description is too long. Please keep it under 1000 characters.');
+        return;
+      }
     }
 
     setSubmitting(true);
     try {
       if (requestType === 'book') {
-        await requestAPI.createRequest(selectedBook.id, formData.message);
-        alert('✅ Book request submitted successfully! Admin will be notified via email.');
+        const response = await requestAPI.createRequest(selectedBook.id, formData.message.trim());
+        if (response.data?.success !== false) {
+          alert('✅ Book request submitted successfully! Admin will be notified via email.');
+          // Reset form
+          setFormData({
+            subject: '',
+            message: '',
+            urgency: 'normal',
+            category: 'general'
+          });
+          setSelectedBook(null);
+          setSearchQuery('');
+        } else {
+          alert(response.data?.message || 'Failed to submit request');
+        }
       } else {
         // Submit general issue
-        await issueReportAPI.createIssue(
-          formData.subject,
-          formData.message,
+        const response = await issueReportAPI.createIssue(
+          formData.subject.trim(),
+          formData.message.trim(),
           formData.category,
           formData.urgency
         );
-        alert('✅ Issue reported successfully! Admin will be notified via email.');
+        
+        if (response.data?.success !== false) {
+          alert('✅ Issue reported successfully! Admin will be notified via email.');
+          // Reset form
+          setFormData({
+            subject: '',
+            message: '',
+            urgency: 'normal',
+            category: 'general'
+          });
+          setSelectedBook(null);
+          setSearchQuery('');
+        } else {
+          const errors = response.data?.errors || [];
+          if (errors.length > 0) {
+            alert(`Validation errors:\n${errors.join('\n')}`);
+          } else {
+            alert(response.data?.message || 'Failed to submit issue');
+          }
+        }
       }
-      
-      // Reset form
-      setFormData({
-        subject: '',
-        message: '',
-        urgency: 'normal',
-        category: 'general'
-      });
-      setSelectedBook(null);
-      setSearchQuery('');
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Failed to submit request. Please try again.';
-      alert(errorMsg);
+      const errorData = error.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        alert(`Validation errors:\n${errorData.errors.join('\n')}`);
+      } else {
+        const errorMsg = errorData?.message || 
+                        error.message || 
+                        'Failed to submit request. Please try again.';
+        alert(errorMsg);
+      }
       console.error('Submit error:', error);
     } finally {
       setSubmitting(false);
@@ -192,16 +250,17 @@ const StudentRequest = ({ user }) => {
                 <label htmlFor="subject">
                   Subject <span className="required">*</span>
                 </label>
-                <input
-                  id="subject"
-                  type="text"
-                  placeholder="Brief description of the issue..."
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="form-input"
-                  required
-                  maxLength={100}
-                />
+              <input
+                id="subject"
+                type="text"
+                placeholder="Brief description of the issue..."
+                value={formData.subject}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                className="form-input"
+                required
+                maxLength={200}
+                minLength={3}
+              />
               </div>
 
               <div className="form-row">
@@ -244,23 +303,24 @@ const StudentRequest = ({ user }) => {
               {requestType === 'book' ? 'Your Message to Admin' : 'Detailed Description'} 
               <span className="required">*</span>
             </label>
-            <textarea
-              id="message"
-              placeholder={
-                requestType === 'book'
-                  ? 'Please explain:\n• Why you need this book\n• When you need it (urgency)\n• Any specific purpose (assignment, research, personal reading, etc.)\n\nExample: "I need this book for my literature assignment due next week. It\'s required reading for my English class."'
-                  : 'Please provide detailed information about the issue:\n• What happened?\n• When did it occur?\n• Steps to reproduce (if applicable)\n• Expected vs actual behavior'
-              }
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              rows={6}
-              className="form-textarea"
-              required
-              maxLength={500}
-            />
+              <textarea
+                id="message"
+                placeholder={
+                  requestType === 'book'
+                    ? 'Please explain:\n• Why you need this book\n• When you need it (urgency)\n• Any specific purpose (assignment, research, personal reading, etc.)\n\nExample: "I need this book for my literature assignment due next week. It\'s required reading for my English class."'
+                    : 'Please provide detailed information about the issue:\n• What happened?\n• When did it occur?\n• Steps to reproduce (if applicable)\n• Expected vs actual behavior'
+                }
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                rows={6}
+                className="form-textarea"
+                required
+                maxLength={requestType === 'book' ? 500 : 1000}
+                minLength={10}
+              />
             <div className="char-counter">
-              <span className={formData.message.length > 500 ? 'char-error' : ''}>
-                {formData.message.length}/500 characters
+              <span className={formData.message.length > (requestType === 'book' ? 500 : 1000) ? 'char-error' : ''}>
+                {formData.message.length}/{requestType === 'book' ? 500 : 1000} characters
               </span>
               {formData.message.length < 10 && formData.message.length > 0 && (
                 <span className="char-warning"> (Minimum 10 characters required)</span>
