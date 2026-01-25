@@ -116,11 +116,11 @@ const getAllRequests = async (req, res) => {
     );
     
     const hasImageUrl = columns.length > 0;
-    const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image,' : 'NULL as book_image,';
+    const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image' : 'NULL as book_image';
     
     let query = `
       SELECT br.*, 
-             b.title as book_title, b.author as book_author, ${imageUrlSelect}
+             b.title as book_title, b.author as book_author, ${imageUrlSelect},
              u.name as user_name, u.email as user_email,
              a.name as admin_name
       FROM book_requests br
@@ -170,11 +170,11 @@ const getMyRequests = async (req, res) => {
       );
       
       const hasImageUrl = columns.length > 0;
-      const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image,' : 'NULL as book_image,';
+      const imageUrlSelect = hasImageUrl ? 'b.image_url as book_image' : 'NULL as book_image';
       
       const [requests] = await pool.execute(
         `SELECT br.*, 
-                b.title as book_title, b.author as book_author, ${imageUrlSelect}
+                b.title as book_title, b.author as book_author, ${imageUrlSelect},
                 a.name as admin_name
          FROM book_requests br
          JOIN books b ON br.book_id = b.id

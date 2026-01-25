@@ -155,7 +155,7 @@ const getMyIssuedBooks = async (req, res) => {
       );
       
       const hasImageUrl = columns.length > 0;
-      const imageUrlSelect = hasImageUrl ? 'b.image_url,' : 'NULL as image_url,';
+      const imageUrlSelect = hasImageUrl ? 'b.image_url' : 'NULL as image_url';
       
       const [issuedBooks] = await pool.execute(
         `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, ${imageUrlSelect}

@@ -11,6 +11,7 @@ import IssueBook from './pages/IssueBook';
 import BookDetails from './pages/BookDetails';
 import BookRequests from './pages/BookRequests';
 import MyRequests from './pages/MyRequests';
+import StudentRequest from './pages/StudentRequest';
 import { authAPI } from './services/api';
 import './App.css';
 
@@ -140,6 +141,12 @@ function App() {
             path="/my-requests" 
             element={
               user ? <MyRequests user={user} /> : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/request" 
+            element={
+              user?.role === 'student' ? <StudentRequest user={user} /> : <Navigate to="/dashboard" replace />
             } 
           />
           <Route 

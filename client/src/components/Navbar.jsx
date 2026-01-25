@@ -49,12 +49,20 @@ const Navbar = ({ user, onLogout }) => {
               📬 Requests
             </Link>
           ) : (
-            <Link 
-              to="/my-requests" 
-              className={`navbar-link ${isActive('/my-requests') ? 'active' : ''}`}
-            >
-              📋 My Requests
-            </Link>
+            <>
+              <Link 
+                to="/request" 
+                className={`navbar-link ${isActive('/request') ? 'active' : ''}`}
+              >
+                📝 Submit Request
+              </Link>
+              <Link 
+                to="/my-requests" 
+                className={`navbar-link ${isActive('/my-requests') ? 'active' : ''}`}
+              >
+                📋 My Requests
+              </Link>
+            </>
           )}
         </div>
 
