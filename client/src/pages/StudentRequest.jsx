@@ -65,12 +65,19 @@ const StudentRequest = ({ user }) => {
     setSubmitting(true);
     try {
       if (requestType === 'book') {
-        await requestAPI.createRequest(selectedBook.id, formData.message);
+        await requestAPI.createRequest(selectedBook.id, formData.message, 'book');
         alert('✅ Book request submitted successfully! Admin will be notified via email.');
       } else {
-        // For general issues, we can create a special request or use a different endpoint
-        // For now, we'll use the book request system with a special book ID or create a new endpoint
-        alert('✅ Issue reported successfully! Admin will be notified.');
+        // Create general issue request
+        await requestAPI.createRequest(
+          null, 
+          formData.message, 
+          'issue', 
+          formData.subject, 
+          formData.category, 
+          formData.urgency
+        );
+        alert('✅ Issue reported successfully! Admin will be notified via email.');
       }
       
       // Reset form

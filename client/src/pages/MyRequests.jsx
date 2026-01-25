@@ -61,9 +61,9 @@ const MyRequests = ({ user }) => {
     <div className="my-requests-page">
       <div className="my-requests-container">
         <div className="my-requests-header">
-          <h1 className="page-title">📋 My Book Requests</h1>
+          <h1 className="page-title">📋 My Requests & Issues</h1>
           <p className="page-subtitle">
-            Track the status of your book requests
+            Track the status of your book requests and reported issues
           </p>
         </div>
 
@@ -72,31 +72,53 @@ const MyRequests = ({ user }) => {
             <div className="empty-icon">📭</div>
             <h2>No Requests Yet</h2>
             <p>
-              You haven't made any book requests yet. When a book is out of stock,
-              you can request it and the admin will be notified.
+              You haven't made any requests yet. You can request books or report issues
+              and the admin will be notified.
             </p>
           </div>
         ) : (
           <div className="requests-list">
             {requests.map((request) => (
-              <div key={request.id} className={`request-card status-${request.status}`}>
-                <div className="request-book-info">
-                  <div className="book-image">
-                    {request.book_image ? (
-                      <img 
-                        src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${request.book_image}`}
-                        alt={request.book_title}
-                      />
-                    ) : (
-                      <div className="no-image">📚</div>
-                    )}
+              <div key={request.id} className={`request-card status-${request.status} ${request.request_type === 'issue' ? 'issue-card' : ''}`}>
+                {request.request_type === 'book' && request.book_title ? (
+                  <div className="request-book-info">
+                    <div className="book-image">
+                      {request.book_image ? (
+                        <img 
+                          src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${request.book_image}`}
+                          alt={request.book_title}
+                        />
+                      ) : (
+                        <div className="no-image">📚</div>
+                      )}
+                    </div>
+                    <div className="book-details">
+                      <h3>{request.book_title}</h3>
+                      <p className="book-author">by {request.book_author}</p>
+                      <span className="request-type-badge book-badge">📚 Book Request</span>
+                      {getStatusBadge(request.status)}
+                    </div>
                   </div>
-                  <div className="book-details">
-                    <h3>{request.book_title}</h3>
-                    <p className="book-author">by {request.book_author}</p>
-                    {getStatusBadge(request.status)}
+                ) : (
+                  <div className="request-issue-info">
+                    <div className="issue-icon">⚠️</div>
+                    <div className="issue-details">
+                      <h3>{request.subject || 'General Issue'}</h3>
+                      <div className="issue-meta">
+                        <span className="request-type-badge issue-badge">⚠️ Issue Report</span>
+                        {request.category && (
+                          <span className="category-badge">{request.category}</span>
+                        )}
+                        {request.urgency && (
+                          <span className={`urgency-badge urgency-${request.urgency}`}>
+                            {request.urgency.charAt(0).toUpperCase() + request.urgency.slice(1)}
+                          </span>
+                        )}
+                      </div>
+                      {getStatusBadge(request.status)}
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 <div className="request-details">
                   <div className="your-message">

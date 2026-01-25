@@ -94,6 +94,89 @@
   border-left-color: #3b82f6;
 }
 
+.request-card.issue-card {
+  border-left-color: #e74c3c;
+}
+
+.request-issue-info {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  width: 100%;
+}
+
+.issue-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.issue-details h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.issue-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.request-type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.book-badge {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.issue-badge {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.category-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.urgency-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.urgency-low {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.urgency-normal {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.urgency-high {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.urgency-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .request-book-info {
   display: flex;
   flex-direction: column;

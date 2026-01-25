@@ -116,10 +116,11 @@ export const commentAPI = {
   deleteComment: (id) => api.delete(`/comments/${id}`)
 };
 
-// Request APIs (Book requests from students to admin)
+// Request APIs (Book requests and general issues from students to admin)
 export const requestAPI = {
   // Student endpoints
-  createRequest: (bookId, message) => api.post('/requests', { bookId, message }),
+  createRequest: (bookId, message, requestType = 'book', subject = null, category = null, urgency = 'normal') => 
+    api.post('/requests', { bookId, message, requestType, subject, category, urgency }),
   getMyRequests: () => api.get('/requests/my-requests'),
   
   // Admin endpoints

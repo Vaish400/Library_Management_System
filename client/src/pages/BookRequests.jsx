@@ -99,9 +99,9 @@ const BookRequests = ({ user }) => {
       <div className="requests-container">
         <div className="requests-header">
           <div className="header-content">
-            <h1 className="page-title">📬 Book Requests</h1>
+            <h1 className="page-title">📬 Requests & Issues</h1>
             <p className="page-subtitle">
-              Review and respond to student book requests
+              Review and respond to student book requests and reported issues
             </p>
           </div>
         </div>
@@ -167,32 +167,55 @@ const BookRequests = ({ user }) => {
         ) : (
           <div className="requests-list">
             {requests.map((request) => (
-              <div key={request.id} className="request-card">
-                <div className="request-book-info">
-                  <div className="book-image">
-                    {request.book_image ? (
-                      <img 
-                        src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${request.book_image}`}
-                        alt={request.book_title}
-                      />
-                    ) : (
-                      <div className="no-image">📚</div>
-                    )}
-                  </div>
-                  <div className="book-details">
-                    <h3>{request.book_title}</h3>
-                    <p className="book-author">by {request.book_author}</p>
-                  </div>
+              <div key={request.id} className={`request-card ${request.request_type === 'issue' ? 'issue-card' : ''}`}>
+                <div className="request-header-info">
+                  {request.request_type === 'book' && request.book_title ? (
+                    <div className="request-book-info">
+                      <div className="book-image">
+                        {request.book_image ? (
+                          <img 
+                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${request.book_image}`}
+                            alt={request.book_title}
+                          />
+                        ) : (
+                          <div className="no-image">📚</div>
+                        )}
+                      </div>
+                      <div className="book-details">
+                        <h3>{request.book_title}</h3>
+                        <p className="book-author">by {request.book_author}</p>
+                        <span className="request-type-badge book-badge">📚 Book Request</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="request-issue-info">
+                      <div className="issue-icon">⚠️</div>
+                      <div className="issue-details">
+                        <h3>{request.subject || 'General Issue'}</h3>
+                        <div className="issue-meta">
+                          <span className="request-type-badge issue-badge">⚠️ Issue Report</span>
+                          {request.category && (
+                            <span className="category-badge">{request.category}</span>
+                          )}
+                          {request.urgency && (
+                            <span className={`urgency-badge urgency-${request.urgency}`}>
+                              {request.urgency.charAt(0).toUpperCase() + request.urgency.slice(1)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="request-details">
                   <div className="requester-info">
-                    <span className="label">Requested by:</span>
+                    <span className="label">{request.request_type === 'book' ? 'Requested by:' : 'Reported by:'}</span>
                     <span className="value">{request.user_name}</span>
                     <span className="email">({request.user_email})</span>
                   </div>
                   <div className="request-message">
-                    <span className="label">Message:</span>
+                    <span className="label">{request.request_type === 'book' ? 'Message:' : 'Description:'}</span>
                     <p className="message-text">"{request.message}"</p>
                   </div>
                   <div className="request-meta">
