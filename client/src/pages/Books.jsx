@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { bookAPI } from '../services/api';
+import { bookAPI, issueAPI, requestAPI } from '../services/api';
 import BookCard from '../components/BookCard';
 import './Books.css';
 
@@ -9,6 +9,9 @@ const Books = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
+  const [requestModal, setRequestModal] = useState({ open: false, book: null });
+  const [requestMessage, setRequestMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -44,6 +47,40 @@ const Books = ({ user }) => {
 
   const handleEdit = (book) => {
     window.location.href = `/add-book?edit=${book.id}`;
+  };
+
+  const handleIssue = async (bookId) => {
+    try {
+      await issueAPI.issueBook(bookId);
+      alert('Book issued successfully!');
+      fetchBooks();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to issue book');
+    }
+  };
+
+  const handleRequestBook = (book) => {
+    setRequestModal({ open: true, book });
+    setRequestMessage('');
+  };
+
+  const submitRequest = async () => {
+    if (!requestMessage.trim()) {
+      alert('Please enter a message for your request');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await requestAPI.createRequest(requestModal.book.id, requestMessage);
+      alert('Request submitted successfully! Admin will be notified.');
+      setRequestModal({ open: false, book: null });
+      setRequestMessage('');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to submit request');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -144,10 +181,61 @@ const Books = ({ user }) => {
                 key={book.id}
                 book={book}
                 user={user}
+                onIssue={handleIssue}
+                onRequest={handleRequestBook}
                 onDelete={user?.role === 'admin' ? () => handleDelete(book.id) : null}
                 onEdit={user?.role === 'admin' ? () => handleEdit(book) : null}
               />
             ))}
+          </div>
+        )}
+
+        {/* Request Book Modal */}
+        {requestModal.open && (
+          <div className="modal-overlay" onClick={() => setRequestModal({ open: false, book: null })}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Request Book</h2>
+                <button 
+                  className="modal-close"
+                  onClick={() => setRequestModal({ open: false, book: null })}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="request-book-info">
+                  <h3>{requestModal.book?.title}</h3>
+                  <p>by {requestModal.book?.author}</p>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="requestMessage">Your Message to Admin</label>
+                  <textarea
+                    id="requestMessage"
+                    placeholder="Explain why you need this book, urgency, etc..."
+                    value={requestMessage}
+                    onChange={(e) => setRequestMessage(e.target.value)}
+                    rows={4}
+                    className="request-textarea"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  className="btn btn-secondary"
+                  onClick={() => setRequestModal({ open: false, book: null })}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn btn-primary"
+                  onClick={submitRequest}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Sending...' : 'Send Request'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

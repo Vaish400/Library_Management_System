@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import './BookCard.css';
 
-const BookCard = ({ book, onIssue, onReturn, onDelete, onEdit, user, showActions = true }) => {
+const BookCard = ({ book, onIssue, onReturn, onDelete, onEdit, onRequest, user, showActions = true }) => {
   const isAvailable = book.quantity > 0;
   const imageUrl = book.image_url 
     ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${book.image_url}`
@@ -43,10 +43,18 @@ const BookCard = ({ book, onIssue, onReturn, onDelete, onEdit, user, showActions
           <span className={`book-quantity ${isAvailable ? 'available' : 'unavailable'}`}>
             {isAvailable ? `📚 ${book.quantity} available` : '❌ Out of stock'}
           </span>
-          {showActions && user?.role === 'student' && isAvailable && (
-            <button onClick={() => onIssue(book.id)} className="btn btn-primary btn-sm">
-              Issue Book
-            </button>
+          {showActions && user?.role === 'student' && (
+            <div className="book-actions-student">
+              {isAvailable ? (
+                <button onClick={() => onIssue && onIssue(book.id)} className="btn btn-primary btn-sm">
+                  Issue Book
+                </button>
+              ) : (
+                <button onClick={() => onRequest && onRequest(book)} className="btn btn-secondary btn-sm">
+                  Request Book
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

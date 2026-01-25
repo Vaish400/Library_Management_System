@@ -7,6 +7,7 @@ const bookRoutes = require('./routes/bookRoutes');
 const issueRoutes = require('./routes/issueRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const requestRoutes = require('./routes/requestRoutes');
 const path = require('path');
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/books', bookRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/requests', requestRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

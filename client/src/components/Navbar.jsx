@@ -41,6 +41,21 @@ const Navbar = ({ user, onLogout }) => {
           >
             {user?.role === 'admin' ? 'Manage Issues' : 'Issue Book'}
           </Link>
+          {user?.role === 'admin' ? (
+            <Link 
+              to="/requests" 
+              className={`navbar-link ${isActive('/requests') ? 'active' : ''}`}
+            >
+              📬 Requests
+            </Link>
+          ) : (
+            <Link 
+              to="/my-requests" 
+              className={`navbar-link ${isActive('/my-requests') ? 'active' : ''}`}
+            >
+              📋 My Requests
+            </Link>
+          )}
         </div>
 
         <div className="navbar-user">

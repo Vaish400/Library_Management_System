@@ -261,9 +261,9 @@ const LandingPage = () => {
             </div>
             <div className="footer-column">
               <h4>Contact</h4>
-              <p>📧 support@libraryms.com</p>
-              <p>📞 +1 (555) 123-4567</p>
-              <p>📍 123 Library Street</p>
+              <p>📧 vaishnavipadgal@gmail.com</p>
+              <p>📞 +91 9876543210</p>
+              <p>📍 Pune, Maharashtra, India</p>
             </div>
           </div>
         </div>

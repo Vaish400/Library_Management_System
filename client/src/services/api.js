@@ -116,4 +116,17 @@ export const commentAPI = {
   deleteComment: (id) => api.delete(`/comments/${id}`)
 };
 
+// Request APIs (Book requests from students to admin)
+export const requestAPI = {
+  // Student endpoints
+  createRequest: (bookId, message) => api.post('/requests', { bookId, message }),
+  getMyRequests: () => api.get('/requests/my-requests'),
+  
+  // Admin endpoints
+  getAllRequests: (status) => api.get('/requests/all', { params: status ? { status } : {} }),
+  getRequestStats: () => api.get('/requests/stats'),
+  respondToRequest: (requestId, status, adminResponse) => 
+    api.put(`/requests/${requestId}/respond`, { status, adminResponse })
+};
+
 export default api;

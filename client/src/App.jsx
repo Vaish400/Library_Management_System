@@ -9,6 +9,8 @@ import Books from './pages/Books';
 import AddBook from './pages/AddBook';
 import IssueBook from './pages/IssueBook';
 import BookDetails from './pages/BookDetails';
+import BookRequests from './pages/BookRequests';
+import MyRequests from './pages/MyRequests';
 import { authAPI } from './services/api';
 import './App.css';
 
@@ -126,6 +128,18 @@ function App() {
             path="/issue-book" 
             element={
               user ? <IssueBook user={user} /> : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/requests" 
+            element={
+              user?.role === 'admin' ? <BookRequests user={user} /> : <Navigate to="/dashboard" replace />
+            } 
+          />
+          <Route 
+            path="/my-requests" 
+            element={
+              user ? <MyRequests user={user} /> : <Navigate to="/login" replace />
             } 
           />
           <Route 
