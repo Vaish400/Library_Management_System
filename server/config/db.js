@@ -8,23 +8,26 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'library_db',
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 5, // Lower limit for serverless
   queueLimit: 0,
+  connectTimeout: 10000, // 10 second timeout
   // Enable SSL for cloud database connections (PlanetScale, Railway, etc.)
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined
 });
 
-// Test connection on startup
-pool.getConnection()
-  .then(connection => {
-    connection.release();
-    console.log('✅ Database connection pool initialized');
-  })
-  .catch(err => {
-    // Log error but don't prevent server from starting
-    console.error('⚠️  Database connection warning:', err.message);
-    console.error('   The server will start, but database operations may fail.');
-    console.error('   Please check your .env file and ensure MySQL is running.');
-  });
+// Only test connection on startup for local development (not Vercel)
+if (process.env.VERCEL !== '1') {
+  pool.getConnection()
+    .then(connection => {
+      connection.release();
+      console.log('✅ Database connection pool initialized');
+    })
+    .catch(err => {
+      // Log error but don't prevent server from starting
+      console.error('⚠️  Database connection warning:', err.message);
+      console.error('   The server will start, but database operations may fail.');
+      console.error('   Please check your .env file and ensure MySQL is running.');
+    });
+}
 
 module.exports = pool;

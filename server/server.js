@@ -87,27 +87,30 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📚 Library Management System API`);
-  console.log(`📧 Email configured: ${process.env.SMTP_USER ? 'Yes' : 'No'}`);
-});
+// Only start server if running locally (not on Vercel)
+if (process.env.VERCEL !== '1') {
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📚 Library Management System API`);
+    console.log(`📧 Email configured: ${process.env.SMTP_USER ? 'Yes' : 'No'}`);
+  });
 
-// Handle port already in use error
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} is already in use.`);
-    console.log(`\n💡 Solutions:`);
-    console.log(`   1. Kill the process using port ${PORT}:`);
-    console.log(`      Windows: netstat -ano | findstr :${PORT}`);
-    console.log(`      Then: taskkill /PID <PID> /F`);
-    console.log(`   2. Or change PORT in .env file to a different port (e.g., 5001)`);
-    console.log(`\n   Trying to find and kill the process...\n`);
-    process.exit(1);
-  } else {
-    process.exit(1);
-  }
-});
+  // Handle port already in use error
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use.`);
+      console.log(`\n💡 Solutions:`);
+      console.log(`   1. Kill the process using port ${PORT}:`);
+      console.log(`      Windows: netstat -ano | findstr :${PORT}`);
+      console.log(`      Then: taskkill /PID <PID> /F`);
+      console.log(`   2. Or change PORT in .env file to a different port (e.g., 5001)`);
+      console.log(`\n   Trying to find and kill the process...\n`);
+      process.exit(1);
+    } else {
+      process.exit(1);
+    }
+  });
+}
 
 // Export for Vercel serverless deployment
 module.exports = app;
