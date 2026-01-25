@@ -132,6 +132,19 @@ const getMyIssuedBooks = async (req, res) => {
 
     // Check if table exists, if not return empty array
     try {
+      // First check if table exists
+      const [tables] = await pool.execute(
+        `SELECT TABLE_NAME 
+         FROM information_schema.TABLES 
+         WHERE TABLE_SCHEMA = DATABASE() 
+         AND TABLE_NAME = 'issued_books'`
+      );
+
+      if (tables.length === 0) {
+        console.warn('issued_books table does not exist. Please run create_database.sql');
+        return res.json({ issuedBooks: [] });
+      }
+
       const [issuedBooks] = await pool.execute(
         `SELECT ib.id, ib.issue_date, ib.return_date, b.id as book_id, b.title, b.author, b.image_url
          FROM issued_books ib
@@ -143,9 +156,9 @@ const getMyIssuedBooks = async (req, res) => {
 
       res.json({ issuedBooks: issuedBooks || [] });
     } catch (dbError) {
-      // If table doesn't exist, return empty array
-      if (dbError.code === 'ER_NO_SUCH_TABLE') {
-        console.warn('issued_books table does not exist. Please run create_database.sql');
+      // If table doesn't exist or any other DB error, return empty array
+      if (dbError.code === 'ER_NO_SUCH_TABLE' || dbError.code === 'ER_BAD_FIELD_ERROR') {
+        console.warn('Database table issue. Please run create_database.sql');
         return res.json({ issuedBooks: [] });
       }
       throw dbError;

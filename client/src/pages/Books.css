@@ -376,6 +376,30 @@
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+.form-group label .required {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.char-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.char-error {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.char-warning {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
 .modal-footer {
   display: flex;
   gap: 1rem;

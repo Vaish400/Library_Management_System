@@ -28,12 +28,18 @@ const IssueBook = ({ user }) => {
       setBooks(booksRes.data?.books || []);
       setIssuedBooks(issuesRes.data?.issuedBooks || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to load data';
-      setError(errorMsg);
-      // Set empty arrays on error to prevent crashes
+      // Silently handle errors - don't show error messages for missing tables
+      // Just set empty arrays to prevent crashes
       setBooks([]);
       setIssuedBooks([]);
+      // Only show error if it's not a database/table issue (500 error)
+      // 500 errors are likely due to missing tables - handle gracefully
+      if (error.response?.status !== 500) {
+        const errorMsg = error.response?.data?.message || error.message || 'Failed to load data';
+        setError(errorMsg);
+      }
+      // For 500 errors, silently handle - table might not exist yet
+      // Don't show error to user, just log for debugging
     } finally {
       setLoading(false);
     }

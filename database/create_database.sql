@@ -1,19 +1,10 @@
--- =====================================================
--- Library Management System - Complete Database Schema
--- =====================================================
--- This file contains the complete database setup for the Library Management System
--- Run this file to create the database and all required tables
---
--- Usage: mysql -u root -p < create_database.sql
--- =====================================================
+=
 
 -- Create database
 CREATE DATABASE IF NOT EXISTS library_db;
 USE library_db;
 
--- =====================================================
--- USERS TABLE
--- =====================================================
+
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -23,9 +14,6 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =====================================================
--- BOOKS TABLE
--- =====================================================
 CREATE TABLE IF NOT EXISTS books (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(150) NOT NULL,
@@ -41,9 +29,7 @@ CREATE TABLE IF NOT EXISTS books (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- =====================================================
--- BOOK RATINGS TABLE
--- =====================================================
+
 CREATE TABLE IF NOT EXISTS book_ratings (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -58,9 +44,7 @@ CREATE TABLE IF NOT EXISTS book_ratings (
   INDEX idx_user_id (user_id)
 );
 
--- =====================================================
--- BOOK COMMENTS/REVIEWS TABLE
--- =====================================================
+
 CREATE TABLE IF NOT EXISTS book_comments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -75,9 +59,7 @@ CREATE TABLE IF NOT EXISTS book_comments (
   INDEX idx_created_at (created_at)
 );
 
--- =====================================================
--- ISSUED BOOKS TABLE
--- =====================================================
+
 CREATE TABLE IF NOT EXISTS issued_books (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -92,9 +74,6 @@ CREATE TABLE IF NOT EXISTS issued_books (
   INDEX idx_return_date (return_date)
 );
 
--- =====================================================
--- BOOK REQUESTS TABLE
--- =====================================================
 CREATE TABLE IF NOT EXISTS book_requests (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -115,15 +94,7 @@ CREATE TABLE IF NOT EXISTS book_requests (
   INDEX idx_created_at (created_at)
 );
 
--- =====================================================
--- SAMPLE DATA (Optional)
--- =====================================================
--- Uncomment the following lines to insert sample data
 
--- Sample Admin User
--- Note: Create admin through registration or use a password hasher
--- INSERT INTO users (name, email, password, role) VALUES 
--- ('Admin User', 'admin@library.com', '$2a$10$YourHashedPasswordHere', 'admin');
 
 -- Sample Books
 INSERT INTO books (title, author, quantity) VALUES
@@ -135,15 +106,3 @@ INSERT INTO books (title, author, quantity) VALUES
 ('Lord of the Flies', 'William Golding', 3),
 ('Animal Farm', 'George Orwell', 5),
 ('Brave New World', 'Aldous Huxley', 4);
-
--- =====================================================
--- VERIFICATION
--- =====================================================
--- Run these queries to verify all tables were created:
--- SHOW TABLES;
--- DESCRIBE users;
--- DESCRIBE books;
--- DESCRIBE book_ratings;
--- DESCRIBE book_comments;
--- DESCRIBE issued_books;
--- DESCRIBE book_requests;

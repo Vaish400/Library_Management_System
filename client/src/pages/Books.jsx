@@ -73,19 +73,32 @@ const Books = ({ user }) => {
   };
 
   const submitRequest = async () => {
-    if (!requestMessage.trim()) {
-      alert('Please enter a message for your request');
+    const trimmedMessage = requestMessage.trim();
+    
+    if (!trimmedMessage) {
+      alert('Please enter a message explaining why you need this book');
+      return;
+    }
+
+    if (trimmedMessage.length < 10) {
+      alert('Please provide more details (at least 10 characters)');
+      return;
+    }
+
+    if (trimmedMessage.length > 500) {
+      alert('Message is too long. Please keep it under 500 characters.');
       return;
     }
 
     setSubmitting(true);
     try {
-      await requestAPI.createRequest(requestModal.book.id, requestMessage);
-      alert('Request submitted successfully! Admin will be notified.');
+      await requestAPI.createRequest(requestModal.book.id, trimmedMessage);
+      alert('✅ Request submitted successfully! Admin will be notified via email.');
       setRequestModal({ open: false, book: null });
       setRequestMessage('');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to submit request');
+      const errorMsg = error.response?.data?.message || 'Failed to submit request. Please try again.';
+      alert(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -217,15 +230,26 @@ const Books = ({ user }) => {
                   <p>by {requestModal.book?.author}</p>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="requestMessage">Your Message to Admin</label>
+                  <label htmlFor="requestMessage">
+                    Your Message to Admin <span className="required">*</span>
+                  </label>
                   <textarea
                     id="requestMessage"
-                    placeholder="Explain why you need this book, urgency, etc..."
+                    placeholder="Please explain:&#10;• Why you need this book&#10;• When you need it (urgency)&#10;• Any specific purpose (assignment, research, personal reading, etc.)&#10;&#10;Example: 'I need this book for my literature assignment due next week. It's required reading for my English class.'"
                     value={requestMessage}
                     onChange={(e) => setRequestMessage(e.target.value)}
-                    rows={4}
+                    rows={6}
                     className="request-textarea"
+                    maxLength={500}
                   />
+                  <div className="char-counter">
+                    <span className={requestMessage.length > 500 ? 'char-error' : ''}>
+                      {requestMessage.length}/500 characters
+                    </span>
+                    {requestMessage.length < 10 && requestMessage.length > 0 && (
+                      <span className="char-warning"> (Minimum 10 characters required)</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">
